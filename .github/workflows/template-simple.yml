@@ -1,0 +1,109 @@
+name: 2 - Template Default
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      lambda_name:
+        required: true
+        type: string
+      folder_default:
+        required: true
+        type: string
+      lambda_timeout:
+        required: false
+        type: string
+        default: "15"
+      memory_size:
+        required: false
+        type: string
+        default: "128"
+      environment_variable:
+        required: false
+        type: string
+
+jobs:
+  run:
+    environment: ${{ inputs.environment }}
+    env:
+      env_var: ${{ vars.ENV_CONTEXT_VAR }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      PROFILE: ${{ vars.PROFILE_TAG }}
+      S3_SAM_DEPLOY: ${{ vars.S3_SAM_DEPLOY }}
+      FOLDER_DEFAULT: ${{ inputs.folder_default }}
+      LAMBDA: ${{ inputs.lambda_name }}
+      ENVIRONMENT: ${{ inputs.environment }}
+      ENVIRONMENT_VARIABLE: ${{ inputs.environment_variable }}
+      LAMBDA_TIMEOUT: ${{ inputs.lambda_timeout }}
+      MEMORY_SIZE: ${{ inputs.memory_size }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: run -> checkout repository
+        uses: actions/checkout@v3
+
+      - name: run -> create file sam cli templates.yaml
+        run: |
+          cd $FOLDER_DEFAULT
+          rm -rf ./template.yaml
+          echo -e "AWSTemplateFormatVersion: '2010-09-09'" >> ./template-temp.yaml
+          echo -e "Transform: AWS::Serverless-2016-10-31" >> ./template-temp.yaml
+          echo -e "Description: >" >> ./template-temp.yaml
+          echo -e "\tFunction Notifier by email" >> ./template-temp.yaml
+          echo -e "Resources:" >> ./template-temp.yaml
+          echo -e "\t"$LAMBDA""$PROFILE":" >> ./template-temp.yaml
+          echo -e "\t\tType: AWS::Serverless::Function" >> ./template-temp.yaml
+          echo -e "\t\tProperties:" >> ./template-temp.yaml
+          if [ -n "$ENVIRONMENT_VARIABLE" ]; then
+            echo -e "\t\t\tEnvironment:" >> ./template-temp.yaml
+            echo -e "\t\t\t\tVariables:" >> ./template-temp.yaml
+            environment_variable=$(echo -e "$ENVIRONMENT_VARIABLE" | awk -F';' '{for(i=1;i<=NF;i++) print $i}' | sed '/^$/d')
+            echo -e "$environment_variable" | sed 's/^/\t\t\t\t\t/g' >> ./template-temp.yaml
+          fi
+          echo -e "\t\t\tTimeout: $LAMBDA_TIMEOUT" >> ./template-temp.yaml
+          echo -e "\t\t\tMemorySize: $MEMORY_SIZE" >> ./template-temp.yaml
+          echo -e "\t\t\tFunctionName: "$LAMBDA""$PROFILE"" >> ./template-temp.yaml
+          echo -e "\t\t\tCodeUri: ." >> ./template-temp.yaml
+          echo -e "\t\t\tHandler: main" >> ./template-temp.yaml
+          echo -e "\t\t\tRuntime: go1.x" >> ./template-temp.yaml
+          echo -e "\t\t\tArchitectures:" >> ./template-temp.yaml
+          echo -e "\t\t\t\t- x86_64" >> ./template-temp.yaml
+          expand -t 2 ./template-temp.yaml > ./template.yaml
+
+      - name: run -> install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: run -> configure sam cli
+        uses: aws-actions/setup-sam@v2
+
+      - name: run -> configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: run -> test unit
+        run: |
+          go test -cover ./...
+
+      - name: run -> build lambda
+        run: |
+          cd $FOLDER_DEFAULT
+          sam build
+
+      - name: run -> deploy lambda
+        run: |
+          cd $FOLDER_DEFAULT
+          sam deploy \
+          --region "$AWS_REGION" \
+          --s3-prefix "$LAMBDA""$PROFILE" \
+          --s3-bucket "$S3_SAM_DEPLOY" \
+          --stack-name  "$LAMBDA""$PROFILE" \
+          --capabilities "CAPABILITY_IAM" \
+          --no-confirm-changeset --no-fail-on-empty-changeset

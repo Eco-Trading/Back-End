@@ -1,0 +1,53 @@
+name: 3 - Lambda Create Account
+
+on:
+  workflow_call:
+    inputs:
+      folder_default:
+        required: true
+        type: string
+
+jobs:
+  development:
+    if: startsWith(github.ref, 'refs/tags/v') == false
+    uses: ./.github/workflows/template-simple.yml
+    secrets: inherit
+    with:
+      environment: ReleaseDevelopment
+      lambda_name: CreateAccount
+      folder_default: ${{ inputs.folder_default }}
+      environment_variable: |
+        DATABASE_MONGODB_URL: "mongodb://localhost:27027";
+        EMAIL_ADMIN: "dev.diego.morais@gmail.com";
+        EMAIL_SUBJECT_CREATE_ACCOUNT: "Your account was created";
+
+
+  staging:
+    needs: development
+    name: create account hlg
+    if: startsWith(github.ref, 'refs/tags/v') == false
+    uses: ./.github/workflows/template-simple.yml
+    secrets: inherit
+    with:
+      environment: ReleaseStaging
+      lambda_name: CreateAccount
+      folder_default: ${{ inputs.folder_default }}
+      environment_variable: |
+        DATABASE_MONGODB_URL: "mongodb://localhost:27027";
+        EMAIL_ADMIN: "dev.diego.morais@gmail.com";
+        EMAIL_SUBJECT_CREATE_ACCOUNT: "Your account was created";
+
+  release:
+    needs: staging
+    name: create account prod
+    if: startsWith(github.ref, 'refs/tags/v') == false
+    uses: ./.github/workflows/template-simple.yml
+    secrets: inherit
+    with:
+      environment: Release
+      lambda_name: CreateAccount
+      folder_default: ${{ inputs.folder_default }}
+      environment_variable: |
+        DATABASE_MONGODB_URL: "mongodb://localhost:27027";
+        EMAIL_ADMIN: "dev.diego.morais@gmail.com";
+        EMAIL_SUBJECT_CREATE_ACCOUNT: "Your account was created";

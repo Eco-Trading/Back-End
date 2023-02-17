@@ -1,0 +1,43 @@
+# docker network create eco_trading_net
+version: '3.9'
+
+services:
+
+  mongo:
+    image: mongo:6.0.3
+    container_name: mongo_eco_trading
+    restart: "always"
+    ports:
+      - "27017:27017"
+    volumes:
+      - ../mongo/mongo_eco_trading/db:/data/db
+    extra_hosts:
+      - "host.docker.internal:172.20.0.1"
+    networks:
+      - eco_trading_net
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+
+  mongo_express:
+    container_name: mongo_express
+    restart: "unless-stopped"
+    image: mongo-express
+    ports:
+      - "8000:8081"
+    environment:
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
+      ME_CONFIG_MONGODB_URL: mongodb://mongo_eco_trading/?maxPoolSize=20
+    extra_hosts:
+      - "host.docker.internal:172.20.0.1"
+    networks:
+      - eco_trading_net
+    deploy:
+      resources:
+        limits:
+          memory: 516m
+
+networks:
+  eco_trading_net:
+    external: true

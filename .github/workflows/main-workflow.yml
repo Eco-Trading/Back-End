@@ -1,0 +1,19 @@
+name: 1 - Main Workflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+
+jobs:
+  create-account:
+    uses: ./.github/workflows/create-account-workflow.yml
+    secrets: inherit
+    with:
+      folder_default: ./cmd/external/create_account/
+
+  email-notifier:
+    uses: ./.github/workflows/email-notifier-workflow.yml
+    secrets: inherit
+    with:
+      folder_default: ./cmd/internal/email_notifier/

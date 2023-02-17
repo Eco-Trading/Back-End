@@ -1,15 +1,12 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+/gen/
+.idea/*
+/cmd/create_account/main
+/cmd/create_account/.aws-sam/
+/cmd/internal/email_notifier/main
+/cmd/internal/email_notifier/.aws-sam/
+.aws-sam
 
-# Test binary, built with `go test -c`
-*.test
+/cmd/internal/email_notifier/template.yaml
 
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
+coverage.html
+coverage.out
