@@ -16,7 +16,6 @@ import (
 var emailHelper helpers_email.IEmailHelper
 
 func HandleRequest(_ context.Context, req models.MessageRequest) (events.APIGatewayProxyResponse, error) {
-
 	return emailHelper.Send(req)
 }
 

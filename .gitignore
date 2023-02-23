@@ -10,3 +10,4 @@
 
 coverage.html
 coverage.out
+/cmd/external/create_account/template.yaml
