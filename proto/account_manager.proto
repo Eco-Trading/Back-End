@@ -1,0 +1,22 @@
+syntax = "proto3";
+package account;
+option go_package = 'proto_buffer';
+
+message AccountRequest {
+  string FirstName = 1;
+  string LastName = 2;
+  string Email = 3;
+  string Address = 4;
+  string City = 5;
+  string State = 6;
+  string Phone = 7;
+}
+
+message Response{
+  int64 StatusCode = 1;
+  string Message = 2;
+}
+
+service AccountManager {
+  rpc Create(AccountRequest)returns(Response);
+}

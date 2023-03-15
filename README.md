@@ -61,3 +61,9 @@ docker compose -f docker-compose-dev.yml up -d
 go test -cover -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html
 
 ```
+
+# Command Proto3
+
+```shell
+protoc --proto_path=proto proto/*.proto --go_out=plugins=grpc:internal/infra/proto_buffer
+```
