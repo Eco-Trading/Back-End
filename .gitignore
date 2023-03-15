@@ -1,7 +1,7 @@
 /gen/
 .idea/*
-/cmd/create_account/main
-/cmd/create_account/.aws-sam/
+/cmd/account_manager/main
+/cmd/account_manager/.aws-sam/
 /cmd/internal/email_notifier/main
 /cmd/internal/email_notifier/.aws-sam/
 .aws-sam
@@ -11,3 +11,6 @@
 coverage.html
 coverage.out
 /cmd/external/create_account/template.yaml
+/cmd/account_manager/config/
+/cmd/account_manager/internal/
+/cmd/account_manager/util/

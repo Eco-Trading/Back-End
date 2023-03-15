@@ -65,5 +65,6 @@ go test -cover -coverprofile=coverage.out ./... && go tool cover -html=coverage.
 # Command Proto3
 
 ```shell
-protoc --proto_path=proto proto/*.proto --go_out=plugins=grpc:internal/infra/proto_buffer
+go get google.golang.org/protobuf/cmd/protoc-gen-go
+protoc --proto_path=proto proto/*.proto --go_out=plugins=grpc:./internal/infra/proto_buffer
 ```
