@@ -1,8 +1,8 @@
 syntax = "proto3";
 package account;
-option go_package = 'proto_buffer';
+option go_package = "proto_buf/account";
 
-message AccountRequest {
+message AccountRequestGrpc {
   string FirstName = 1;
   string LastName = 2;
   string Email = 3;
@@ -12,11 +12,11 @@ message AccountRequest {
   string Phone = 7;
 }
 
-message Response{
+message ResponseGrpc{
   int64 StatusCode = 1;
   string Message = 2;
 }
 
 service AccountManager {
-  rpc Create(AccountRequest)returns(Response);
+  rpc Create(AccountRequestGrpc)returns(ResponseGrpc);
 }

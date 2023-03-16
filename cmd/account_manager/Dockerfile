@@ -10,7 +10,7 @@ ENV GRPC_PORT=${GRPC_PORT}
 ENV DATABASE_MONGODB_URL=${DATABASE_MONGODB_URL}
 
 RUN go mod download
-RUN CGO_ENABLED=0 go build -v -x -a -ldflags '-extldflags "-static" -s -w' -o /account_manager
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -x -a -ldflags '-extldflags "-static" -s -w' -o /account_manager
 
 FROM gcr.io/distroless/static-debian11
 WORKDIR /app

@@ -59,12 +59,19 @@ docker compose -f docker-compose-dev.yml up -d
 ## validar cobertura de teste 
 ```shell
 go test -cover -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html
+```
 
+```shell 
+go mod tidy
 ```
 
 # Command Proto3
-
 ```shell
-go get google.golang.org/protobuf/cmd/protoc-gen-go
-protoc --proto_path=proto proto/*.proto --go_out=plugins=grpc:./internal/infra/proto_buffer
+sudo apt install protobuf-compiler
+go get -u google.golang.org/protobuf/cmd/protoc-gen-go
+go install google.golang.org/protobuf/cmd/protoc-gen-go
+go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
+protoc --proto_path=proto proto/*.proto --go_out==plugins=grpc:internal/infra
 ```
